@@ -486,9 +486,19 @@ class GeminiProvider(LLMProvider):
         return params
 
     def estimate_cost(
-        self, model: str, prompt: str, image_count: int = 1
+        self,
+        model: str,
+        prompt: str,
+        image_count: int = 1,
+        quality: str = "auto",
+        size: str = "1024x1024",
     ) -> dict[str, Any]:
-        """Estimate cost for Gemini image generation."""
+        """Estimate cost for Gemini image generation.
+
+        Imagen is priced flat per image, so quality and size do not affect
+        the estimate; they are accepted for signature parity with the
+        generate() caller and other providers.
+        """
 
         pricing = {
             "imagen-4": {"cost_per_image": 0.04},
