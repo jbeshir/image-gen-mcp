@@ -23,6 +23,8 @@ logger = logging.getLogger(__name__)
 class GeminiProvider(LLMProvider):
     """Gemini provider for native image generation via google-genai."""
 
+    VERTEX_LOCATION = "global"
+
     # Shared capabilities for the current Nano Banana model family.
     _GEMINI_IMAGE_CAPABILITY = dict(
         supported_sizes=["1024x1024", "1536x1024", "1024x1536"],
@@ -184,7 +186,7 @@ class GeminiProvider(LLMProvider):
         self.client = genai.Client(
             vertexai=True,
             project=self.project_id,
-            location="us-central1",
+            location=self.VERTEX_LOCATION,
             credentials=self.credentials,
             http_options=types.HttpOptions(
                 api_version="v1",
@@ -348,7 +350,7 @@ class GeminiProvider(LLMProvider):
 
             self.credentials.refresh(Request())
             url = (
-                "https://us-central1-aiplatform.googleapis.com"
+                "https://aiplatform.googleapis.com"
                 "/v1beta1/publishers/google/models"
             )
             headers = {

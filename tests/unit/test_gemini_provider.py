@@ -27,6 +27,10 @@ def test_supported_models_are_current_native_gemini_models(provider):
     }
 
 
+def test_current_image_models_use_global_vertex_endpoint():
+    assert GeminiProvider.VERTEX_LOCATION == "global"
+
+
 @pytest.mark.asyncio
 async def test_generate_image_uses_generate_content(provider):
     part = MagicMock()

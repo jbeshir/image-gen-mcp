@@ -186,7 +186,7 @@ PROVIDERS__OPENAI__ENABLED=true
 
 ```bash
 PROVIDERS__GEMINI__API_KEY=/path/to/your/vertex-ai-key.json
-PROVIDERS__GEMINI__BASE_URL=https://us-central1-aiplatform.googleapis.com/v1
+PROVIDERS__GEMINI__BASE_URL=https://aiplatform.googleapis.com/v1
 PROVIDERS__GEMINI__TIMEOUT=300.0
 PROVIDERS__GEMINI__MAX_RETRIES=3
 PROVIDERS__GEMINI__ENABLED=true
