@@ -139,9 +139,10 @@ IMAGES__DEFAULT_SIZE=1536x1024
 - `dall-e-2`: Classic image generation model
 
 **Google Gemini Models:**
-- `imagen-4`: Google's latest image generation model
-- `imagen-4-ultra`: Enhanced high-quality version
-- `imagen-3`: Previous generation stable model
+- `gemini-3.1-flash-image`: Best all-around image generation model
+- `gemini-3.1-flash-lite-image`: Lowest-latency, lowest-cost option
+- `gemini-3-pro-image`: Premium model for complex professional assets
+- `gemini-2.5-flash-image`: Previous-generation stable model
 
 ## 💡 Tips for Better Results
 
@@ -227,9 +228,10 @@ If you encounter technical issues:
 | gpt-image-1 | OpenAI | ✅ | ✅ | Latest features, highest quality |
 | dall-e-3 | OpenAI | ✅ | ❌ | Creative, artistic images |
 | dall-e-2 | OpenAI | ✅ | ✅ | Simple images, editing tasks |
-| imagen-4 | Google | ✅ | ❌ | Alternative style, high quality |
-| imagen-4-ultra | Google | ✅ | ❌ | Premium quality Imagen |
-| imagen-3 | Google | ✅ | ❌ | Stable, reliable generation |
+| gemini-3.1-flash-image | Google | ✅ | ❌ | Best all-around Gemini image model |
+| gemini-3.1-flash-lite-image | Google | ✅ | ❌ | Fast, cost-effective generation |
+| gemini-3-pro-image | Google | ✅ | ❌ | Complex professional assets |
+| gemini-2.5-flash-image | Google | ✅ | ❌ | Previous-generation compatibility |
 
 ## 🎉 Start Creating
 

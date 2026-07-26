@@ -7,7 +7,7 @@ This guide covers the image generation APIs supported by the Image Gen MCP Serve
 The Image Gen MCP Server supports multiple AI providers through a unified interface:
 
 - **OpenAI Provider**: gpt-image-1, dall-e-3, dall-e-2
-- **Gemini Provider**: imagen-4, imagen-4-ultra, imagen-3 (via OpenAI compatibility mode)
+- **Gemini Provider**: gemini-3.1-flash-image, gemini-3.1-flash-lite-image, gemini-3-pro-image, gemini-2.5-flash-image
 
 ## OpenAI Images API
 
@@ -65,53 +65,41 @@ Creates an edited or extended image given source images and a prompt. Only suppo
 | `output_format` | string | No | Output format for `gpt-image-1` |
 | `background` | string | No | Background setting for `gpt-image-1` |
 
-## Google Vertex AI Images API (Imagen Models)
+## Google Vertex AI Gemini API
 
 ### Create Image
 
-**Endpoint**: `POST https://us-central1-aiplatform.googleapis.com/v1/projects/{PROJECT_ID}/locations/us-central1/publishers/google/models/{MODEL_ID}:predict`
+**SDK method**: `client.aio.models.generate_content`
 
-Creates an image using Google's Imagen models through Vertex AI API with service account authentication.
+Creates an image using Google's native Gemini image models through Vertex AI with service account authentication.
 
 #### Request Body
 
-**Format**: Vertex AI prediction format with instances and parameters.
-
-**Instances**:
+**Generation config**:
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `prompt` | string | Yes | Text description of the desired image |
-
-**Parameters**:
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `sampleCount` | integer | No | Number of images to generate (1-4) |
-| `aspectRatio` | string | No | Aspect ratio: `1:1`, `9:16`, `16:9`, `3:4`, `4:3` |
+| `response_modalities` | array | Yes | Set to `["IMAGE"]` |
+| `image_config.aspect_ratio` | string | No | Output aspect ratio |
 
 **Available Models**:
-- `imagen-4.0-generate-preview-06-06` (Imagen-4)
-- `imagen-3.0-generate-002` (Imagen-3)
+- `gemini-3.1-flash-image`
+- `gemini-3.1-flash-lite-image`
+- `gemini-3-pro-image`
+- `gemini-2.5-flash-image`
 
 #### Example Request
 
-**Note**: Gemini/Imagen models now use Vertex AI API with service account authentication.
+The server uses the `google-genai` SDK:
 
-```bash
-# First, get access token from service account
-ACCESS_TOKEN=$(gcloud auth application-default print-access-token)
-
-curl https://us-central1-aiplatform.googleapis.com/v1/projects/YOUR_PROJECT_ID/locations/us-central1/publishers/google/models/imagen-4.0-generate-preview-06-06:predict \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $ACCESS_TOKEN" \
-  -d '{
-    "instances": [{
-      "prompt": "A beautiful sunset over mountains"
-    }],
-    "parameters": {
-      "sampleCount": 1,
-      "aspectRatio": "16:9"
-    }
-  }'
+```python
+response = await client.aio.models.generate_content(
+    model="gemini-3.1-flash-image",
+    contents="A beautiful sunset over mountains",
+    config=types.GenerateContentConfig(
+        response_modalities=["IMAGE"],
+        image_config=types.ImageConfig(aspect_ratio="16:9"),
+    ),
+)
 ```
 
 ### Parameter Translation
@@ -165,27 +153,21 @@ The MCP server automatically translates parameters between different providers:
 
 ### Gemini Models
 
-#### imagen-4
-- **Capabilities**: Generation only
-- **Max Prompt**: No official limit
-- **Aspect Ratios**: 1:1, 9:16, 16:9, 3:4, 4:3
-- **Formats**: png, jpeg
-- **Safety**: strict, moderate, permissive
+#### gemini-3.1-flash-image
+- **Best for**: General-purpose generation with strong quality, speed, and cost
+- **Output**: 1K, 2K, or 4K
 
-#### imagen-4-ultra
-- **Capabilities**: Generation only
-- **Max Prompt**: No official limit
-- **Aspect Ratios**: 1:1, 9:16, 16:9, 3:4, 4:3
-- **Formats**: png, jpeg
-- **Safety**: strict, moderate, permissive
-- **Note**: Enhanced quality version of imagen-4
+#### gemini-3.1-flash-lite-image
+- **Best for**: Lowest latency and cost
+- **Output**: 1K
 
-#### imagen-3
-- **Capabilities**: Generation only
-- **Max Prompt**: No official limit
-- **Aspect Ratios**: 1:1, 9:16, 16:9
-- **Formats**: png, jpeg
-- **Safety**: strict, moderate, permissive
+#### gemini-3-pro-image
+- **Best for**: Complex professional assets and precise instructions
+- **Output**: Up to 4K
+
+#### gemini-2.5-flash-image
+- **Best for**: Compatibility with the previous Nano Banana generation
+- **Output**: 1K
 
 ## Provider Configuration
 
@@ -203,12 +185,12 @@ PROVIDERS__OPENAI__ENABLED=true
 ### Gemini Provider
 
 ```bash
-PROVIDERS__GEMINI__API_KEY=your-gemini-api-key-here
-PROVIDERS__GEMINI__BASE_URL=https://generativelanguage.googleapis.com/v1beta/
+PROVIDERS__GEMINI__API_KEY=/path/to/your/vertex-ai-key.json
+PROVIDERS__GEMINI__BASE_URL=https://aiplatform.googleapis.com/v1
 PROVIDERS__GEMINI__TIMEOUT=300.0
 PROVIDERS__GEMINI__MAX_RETRIES=3
 PROVIDERS__GEMINI__ENABLED=true
-PROVIDERS__GEMINI__DEFAULT_MODEL=imagen-4
+PROVIDERS__GEMINI__DEFAULT_MODEL=gemini-3.1-flash-image
 ```
 
 ## Usage Through MCP Server
@@ -234,9 +216,9 @@ result = await session.call_tool("generate_image", {
 # Generate with Gemini model
 result = await session.call_tool("generate_image", {
     "prompt": "A beautiful sunset over mountains", 
-    "model": "imagen-4",
-    "quality": "high",
-    "size": "1536x1024"  # Automatically translated to aspectRatio: "16:10"
+    "model": "gemini-3.1-flash-image",
+    "quality": "auto",
+    "size": "1536x1024"  # Automatically translated to 4:3
 })
 ```
 
@@ -277,7 +259,7 @@ result = await session.call_tool("edit_image", {
 1. **Model Selection**: Choose models based on your specific needs:
    - **gpt-image-1**: Best overall quality and features
    - **dall-e-3**: Good for creative, artistic images
-   - **imagen-4**: Alternative with different style characteristics
+   - **gemini-3.1-flash-image**: Best all-around Gemini choice
 
 2. **Parameter Optimization**: Use appropriate parameters for each model:
    - Adjust quality based on output requirements
@@ -306,7 +288,7 @@ models = await session.call_tool("list_available_models")
 # Generate with specific model
 result = await session.call_tool("generate_image", {
     "prompt": "A sunset",
-    "model": "gpt-image-1",  # or "imagen-4"
+    "model": "gpt-image-1",  # or "gemini-3.1-flash-image"
     "quality": "high"
 })
 ```

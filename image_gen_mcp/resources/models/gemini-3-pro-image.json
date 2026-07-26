@@ -1,0 +1,14 @@
+{
+  "model_id": "gemini-3-pro-image",
+  "name": "Gemini 3 Pro Image (Nano Banana Pro)",
+  "version": "3",
+  "capabilities": ["Native text-to-image generation", "Conversational image editing", "Complex instruction following", "Up to 4K output"],
+  "pricing": {"1K or 2K image output": "$0.134", "currency": "USD"},
+  "rate_limits": {"default": "Based on Gemini API quota", "max_images_per_request": 1},
+  "size_options": ["1024x1024", "1536x1024", "1024x1536"],
+  "quality_levels": ["auto"],
+  "formats": ["PNG"],
+  "features": {"recommended": "Professional assets and complex prompts", "watermarking": "SynthID watermark included"},
+  "best_practices": ["Use when precision and instruction following matter most"],
+  "examples": ["generate_image(prompt='A detailed multilingual campaign poster', model='gemini-3-pro-image')"]
+}

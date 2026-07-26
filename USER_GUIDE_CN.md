@@ -139,9 +139,10 @@ IMAGES__DEFAULT_SIZE=1536x1024
 - `dall-e-2`：经典图片生成模型
 
 **Google Gemini模型：**
-- `imagen-4`：Google最新图片生成模型
-- `imagen-4-ultra`：增强版高质量模型
-- `imagen-3`：上一代稳定模型
+- `gemini-3.1-flash-image`：综合性能最佳的 Gemini 图片生成模型
+- `gemini-3.1-flash-lite-image`：低延迟、低成本模型
+- `gemini-3-pro-image`：适用于复杂专业素材的高级模型
+- `gemini-2.5-flash-image`：上一代稳定模型
 
 ## 💡 使用技巧
 

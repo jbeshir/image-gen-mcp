@@ -3,8 +3,8 @@ packages = ["image_gen_mcp"]
 
 [project]
 name = "image-gen-mcp"
-version = "0.1.0"
-description = "An MCP (Model Context Protocol) server that integrates with OpenAI's gpt-image-1 model for text-to-image generation services"
+version = "0.2.0"
+description = "An MCP server for OpenAI and Google Gemini image generation models"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -15,7 +15,7 @@ dependencies = [
     "pydantic",
     "httpx[socks]",
     "aiofiles",
-    "google-genai>=1.0.0",
+    "google-genai>=2.14.0",
     "google-auth",
 ]
 

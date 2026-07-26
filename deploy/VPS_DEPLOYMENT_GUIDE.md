@@ -97,7 +97,7 @@ nano .env
 PROVIDERS__OPENAI__API_KEY=sk-your-actual-openai-api-key-here
 PROVIDERS__OPENAI__ENABLED=true
 
-# Gemini Provider (optional for imagen-4, imagen-4-ultra, imagen-3)
+# Gemini Provider (optional for native Gemini image models)
 PROVIDERS__GEMINI__API_KEY=your-actual-gemini-api-key-here
 PROVIDERS__GEMINI__ENABLED=true
 

@@ -1,0 +1,14 @@
+{
+  "model_id": "gemini-2.5-flash-image",
+  "name": "Gemini 2.5 Flash Image (Nano Banana)",
+  "version": "2.5",
+  "capabilities": ["Native text-to-image generation", "Conversational image editing", "1K output"],
+  "pricing": {"image output": "$0.039", "currency": "USD"},
+  "rate_limits": {"default": "Based on Gemini API quota", "max_images_per_request": 1},
+  "size_options": ["1024x1024", "1536x1024", "1024x1536"],
+  "quality_levels": ["auto"],
+  "formats": ["PNG"],
+  "features": {"recommended": "Compatibility with the previous Nano Banana generation", "watermarking": "SynthID watermark included"},
+  "best_practices": ["Prefer Gemini 3.1 Flash Lite Image for new cost-sensitive workloads"],
+  "examples": ["generate_image(prompt='A watercolor landscape', model='gemini-2.5-flash-image')"]
+}

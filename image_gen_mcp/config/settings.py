@@ -52,7 +52,10 @@ class GeminiSettings(BaseModel):
     timeout: float = Field(300.0, description="Request timeout in seconds")
     max_retries: int = Field(3, description="Maximum number of retries")
     enabled: bool = Field(False, description="Enable Gemini provider")
-    default_model: str = Field("imagen-4", description="Default Gemini model")
+    default_model: str = Field(
+        "gemini-3.1-flash-image",
+        description="Default Gemini model",
+    )
 
     @field_validator("base_url")
     @classmethod
@@ -284,7 +287,7 @@ class ServerSettings(BaseModel):
     """Server configuration."""
 
     name: str = Field("Image Gen MCP Server", description="Server name")
-    version: str = Field("0.1.0", description="Server version")
+    version: str = Field("0.2.0", description="Server version")
     port: int = Field(3001, gt=0, le=65535, description="Server port")
     host: str = Field("127.0.0.1", description="Server host")
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = Field(

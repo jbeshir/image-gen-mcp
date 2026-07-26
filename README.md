@@ -4,7 +4,7 @@
 
 Traditional AI chatbot interfaces are limited to text-only interactions, regardless of how powerful their underlying language models are. Image Gen MCP Server bridges this gap by enabling **any LLM-powered chatbot client** to generate professional-quality images through the standardized Model Context Protocol (MCP).
 
-Whether you're using Claude Desktop, a custom ChatGPT interface, Llama-based applications, or any other LLM client that supports MCP, this server democratizes access to **multiple AI image generation models** including OpenAI's gpt-image-2, gpt-image-1.5, gpt-image-1, dall-e-3, dall-e-2, and Google's Imagen series (imagen-4, imagen-4-ultra, imagen-4-fast, imagen-3), transforming text-only conversations into rich, visual experiences.
+Whether you're using Claude Desktop, a custom ChatGPT interface, Llama-based applications, or any other LLM client that supports MCP, this server democratizes access to **multiple AI image generation models** including OpenAI's gpt-image series and Google's current Gemini native image models, transforming text-only conversations into rich, visual experiences.
 
 > **📦 Package Manager**: This project uses [UV](https://docs.astral.sh/uv/) for fast, reliable Python package management. UV provides better dependency resolution, faster installs, and proper environment isolation compared to traditional pip/venv workflows.
 
@@ -71,7 +71,7 @@ The AI ecosystem has evolved to include powerful language models from multiple p
 ## Features
 
 ### 🎨 Multi-Provider Image Generation
-- **Multiple AI Models**: Support for OpenAI (gpt-image-2, gpt-image-1.5, gpt-image-1, dall-e-3, dall-e-2) and Google Gemini (imagen-4, imagen-4-ultra, imagen-4-fast, imagen-3)
+- **Multiple AI Models**: Support for OpenAI (gpt-image-2, gpt-image-1.5, gpt-image-1, dall-e-3, dall-e-2) and Google Gemini (gemini-3.1-flash-image, gemini-3.1-flash-lite-image, gemini-3-pro-image, gemini-2.5-flash-image)
 - **Text-to-Image**: Generate high-quality images from text descriptions
 - **Image Editing**: Edit existing images with text instructions (OpenAI models)
 - **Multiple Formats**: Support for PNG, JPEG, and WebP output formats
@@ -114,7 +114,7 @@ The AI ecosystem has evolved to include powerful language models from multiple p
 - Python 3.10+
 - [UV package manager](https://docs.astral.sh/uv/)
 - OpenAI API key (for OpenAI models)
-- Google Cloud service account with Vertex AI access (for Imagen models, optional)
+- Google Cloud service account with Vertex AI access (for Gemini models, optional)
 
 ### Installation
 
@@ -132,10 +132,10 @@ The AI ecosystem has evolved to include powerful language models from multiple p
    cp .env.example .env
    # Edit .env and add your credentials:
    # - PROVIDERS__OPENAI__API_KEY for OpenAI models
-   # - PROVIDERS__GEMINI__API_KEY for Imagen models (path to service account JSON file)
+   # - PROVIDERS__GEMINI__API_KEY for Gemini models (path to service account JSON file)
    ```
 
-   **For Imagen models (Vertex AI setup)**:
+   **For Gemini models (Vertex AI setup)**:
    1. Go to [Google Cloud Console](https://console.cloud.google.com)
    2. Enable Vertex AI API for your project
    3. Create a service account with "Vertex AI User" role
@@ -190,7 +190,7 @@ uv run python -m image_gen_mcp.server --transport streamable-http --cors
 ```bash
 uv run python -m image_gen_mcp.server --help
 
-Image Gen MCP Server - Generate and edit images using OpenAI's gpt-image models and Google's Imagen series
+Image Gen MCP Server - Generate images using OpenAI's gpt-image models and Google's native Gemini image models
 
 options:
   --config PATH         Path to configuration file (.env format)
@@ -331,7 +331,7 @@ Generate images from text descriptions using any supported model.
 
 **Parameters**:
 - `prompt` (required): Text description of desired image
-- `model` (optional): Model to use (e.g., "gpt-image-2", "gpt-image-1.5", "dall-e-3", "imagen-4")
+- `model` (optional): Model to use (e.g., "gpt-image-2", "gpt-image-1.5", "dall-e-3", "gemini-3.1-flash-image")
 - `quality`: "auto" | "high" | "medium" | "low" (default: "auto")
 - `size`: "auto", presets like "1024x1024" / "1536x1024" / "1024x1536" / "3840x2160", or (for `gpt-image-2`) any `WxH` within the model's constraints (default: "1536x1024"). Accepted values are model-dependent.
 - `style`: "vivid" | "natural" (default: "vivid")
@@ -393,13 +393,13 @@ PROVIDERS__OPENAI__MAX_RETRIES=3
 PROVIDERS__OPENAI__ENABLED=true
 
 # Gemini Provider (requires Vertex AI setup)
-# For Imagen models, use path to Google Cloud service account JSON file
+# For Gemini models, use path to a Google Cloud service account JSON file
 PROVIDERS__GEMINI__API_KEY=/path/to/your/vertex-ai-key.json
-PROVIDERS__GEMINI__BASE_URL=https://us-central1-aiplatform.googleapis.com/v1
+PROVIDERS__GEMINI__BASE_URL=https://aiplatform.googleapis.com/v1
 PROVIDERS__GEMINI__TIMEOUT=300.0
 PROVIDERS__GEMINI__MAX_RETRIES=3
 PROVIDERS__GEMINI__ENABLED=false
-PROVIDERS__GEMINI__DEFAULT_MODEL=imagen-4
+PROVIDERS__GEMINI__DEFAULT_MODEL=gemini-3.1-flash-image
 
 # =============================================================================
 # Image Generation Settings

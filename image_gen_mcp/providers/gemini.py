@@ -21,46 +21,52 @@ logger = logging.getLogger(__name__)
 
 
 class GeminiProvider(LLMProvider):
-    """Gemini provider for image generation using Imagen models
-    via the google-genai SDK."""
+    """Gemini provider for native image generation via google-genai."""
 
-    # Shared capabilities for Imagen 4 family models
-    _IMAGEN_4_CAPABILITY = dict(
+    VERTEX_LOCATION = "global"
+
+    # Shared capabilities for the current Nano Banana model family.
+    _GEMINI_IMAGE_CAPABILITY = dict(
         supported_sizes=["1024x1024", "1536x1024", "1024x1536"],
-        supported_qualities=["auto", "high", "medium", "low"],
-        supported_formats=["png", "jpeg", "webp"],
+        supported_qualities=["auto"],
+        supported_formats=["png"],
         max_images_per_request=1,
         supports_style=False,
         supports_background=False,
-        supports_compression=True,
+        supports_compression=False,
         custom_parameters={
             "aspect_ratio": [
                 "1:1",
+                "2:3",
                 "3:4",
                 "4:3",
+                "3:2",
+                "4:5",
+                "5:4",
                 "9:16",
                 "16:9",
+                "21:9",
             ],
         },
     )
 
-    # Supported Imagen models and their capabilities
+    # Public model names intentionally match the Gemini API model IDs.
     SUPPORTED_MODELS = {
-        "imagen-4": ModelCapability(
-            model_id="imagen-4.0-generate-001",
-            **_IMAGEN_4_CAPABILITY,
+        "gemini-3.1-flash-image": ModelCapability(
+            model_id="gemini-3.1-flash-image",
+            **_GEMINI_IMAGE_CAPABILITY,
         ),
-        "imagen-4-ultra": ModelCapability(
-            model_id="imagen-4.0-ultra-generate-001",
-            **_IMAGEN_4_CAPABILITY,
+        "gemini-3.1-flash-lite-image": ModelCapability(
+            model_id="gemini-3.1-flash-lite-image",
+            **_GEMINI_IMAGE_CAPABILITY,
         ),
-        "imagen-4-fast": ModelCapability(
-            model_id="imagen-4.0-fast-generate-001",
-            **_IMAGEN_4_CAPABILITY,
+        "gemini-3-pro-image": ModelCapability(
+            model_id="gemini-3-pro-image",
+            **_GEMINI_IMAGE_CAPABILITY,
         ),
-        "imagen-3": ModelCapability(
-            model_id="imagen-3.0-generate-002",
-            **_IMAGEN_4_CAPABILITY,
+        "gemini-2.5-flash-image": ModelCapability(
+            model_id="gemini-2.5-flash-image",
+            **_GEMINI_IMAGE_CAPABILITY,
         ),
     }
 
@@ -75,7 +81,7 @@ class GeminiProvider(LLMProvider):
     def __init__(self, config: ProviderConfig):
         super().__init__(config)
 
-        # For Vertex AI (Imagen models), api_key is a path to a
+        # For Vertex AI, api_key is a path to a
         # service account JSON file.
         self.credentials_path = config.api_key
 
@@ -180,7 +186,7 @@ class GeminiProvider(LLMProvider):
         self.client = genai.Client(
             vertexai=True,
             project=self.project_id,
-            location="us-central1",
+            location=self.VERTEX_LOCATION,
             credentials=self.credentials,
             http_options=types.HttpOptions(
                 api_version="v1",
@@ -212,14 +218,6 @@ class GeminiProvider(LLMProvider):
         """Convert OpenAI size format to Gemini aspect ratio."""
         return self.SIZE_TO_ASPECT_RATIO.get(size, "1:1")
 
-    # Map quality names to output_compression_quality (0-100).
-    # Only meaningful for lossy formats (JPEG, WebP); PNG ignores it.
-    _QUALITY_TO_COMPRESSION = {
-        "high": 90,
-        "medium": 75,
-        "low": 50,
-    }
-
     async def generate_image(
         self,
         model: str,
@@ -249,37 +247,12 @@ class GeminiProvider(LLMProvider):
             else "1:1"
         )
 
-        mime_by_format = {
-            "png": "image/png",
-            "jpeg": "image/jpeg",
-            "webp": "image/webp",
-        }
-
-        # Determine compression quality for the SDK.
-        # Explicit compression param takes priority; fall back to
-        # the quality name mapping for lossy formats.
-        if compression < 100:
-            compression_quality = compression
-        elif quality in self._QUALITY_TO_COMPRESSION:
-            compression_quality = self._QUALITY_TO_COMPRESSION[
-                quality
-            ]
-        else:
-            compression_quality = None  # let the API decide
-
-        config_kwargs: dict[str, Any] = {
-            "number_of_images": 1,
-            "aspect_ratio": aspect_ratio,
-            "output_mime_type": mime_by_format.get(
-                output_format, "image/png"
+        config = types.GenerateContentConfig(
+            response_modalities=["IMAGE"],
+            image_config=types.ImageConfig(
+                aspect_ratio=aspect_ratio,
             ),
-        }
-        if compression_quality is not None:
-            config_kwargs[
-                "output_compression_quality"
-            ] = compression_quality
-
-        config = types.GenerateImagesConfig(**config_kwargs)
+        )
 
         try:
             self._logger.info(
@@ -287,26 +260,25 @@ class GeminiProvider(LLMProvider):
             )
 
             response = (
-                await self.client.aio.models.generate_images(
+                await self.client.aio.models.generate_content(
                     model=actual_model_id,
-                    prompt=prompt,
+                    contents=prompt,
                     config=config,
                 )
             )
 
-            if not response.generated_images:
-                raise ProviderError(
-                    "No images generated in Imagen response",
-                    provider_name=self.name,
-                    error_code="INVALID_RESPONSE",
-                )
-
-            image = response.generated_images[0].image
-            image_bytes = image.image_bytes
-
+            image_bytes = next(
+                (
+                    part.inline_data.data
+                    for part in response.parts or []
+                    if part.inline_data
+                    and part.inline_data.data
+                ),
+                None,
+            )
             if not image_bytes:
                 raise ProviderError(
-                    "Empty image data in Imagen response",
+                    "No image data in Gemini response",
                     provider_name=self.name,
                     error_code="INVALID_RESPONSE",
                 )
@@ -366,7 +338,7 @@ class GeminiProvider(LLMProvider):
         )
 
     async def check_health(self) -> dict[str, Any]:
-        """Verify credentials and list available Imagen models.
+        """Verify credentials and list available Gemini image models.
 
         Uses the v1beta1 publisher models list endpoint via httpx
         (the SDK's models.list() has known reliability issues
@@ -378,7 +350,7 @@ class GeminiProvider(LLMProvider):
 
             self.credentials.refresh(Request())
             url = (
-                "https://us-central1-aiplatform.googleapis.com"
+                "https://aiplatform.googleapis.com"
                 "/v1beta1/publishers/google/models"
             )
             headers = {
@@ -466,12 +438,10 @@ class GeminiProvider(LLMProvider):
                     "using 1:1 (1024x1024)"
                 )
 
-        # Imagen 4 Ultra only supports 1 image at a time
-        if model == "imagen-4-ultra" and params.get("n", 1) > 1:
+        if params.get("n", 1) > 1:
             params["n"] = 1
             self._logger.warning(
-                "Imagen 4 Ultra only supports generating "
-                "1 image at a time"
+                "Gemini image models return one final image per request"
             )
 
         # Remove unsupported parameters
@@ -493,18 +463,17 @@ class GeminiProvider(LLMProvider):
         quality: str = "auto",
         size: str = "1024x1024",
     ) -> dict[str, Any]:
-        """Estimate cost for Gemini image generation.
+        """Estimate standard-tier image output cost.
 
-        Imagen is priced flat per image, so quality and size do not affect
-        the estimate; they are accepted for signature parity with the
-        generate() caller and other providers.
+        Input and thinking tokens are not included, so this is a lower-bound
+        estimate. The server currently requests 1K output images.
         """
 
         pricing = {
-            "imagen-4": {"cost_per_image": 0.04},
-            "imagen-4-ultra": {"cost_per_image": 0.06},
-            "imagen-4-fast": {"cost_per_image": 0.02},
-            "imagen-3": {"cost_per_image": 0.02},
+            "gemini-3.1-flash-image": {"cost_per_image": 0.067},
+            "gemini-3.1-flash-lite-image": {"cost_per_image": 0.0336},
+            "gemini-3-pro-image": {"cost_per_image": 0.134},
+            "gemini-2.5-flash-image": {"cost_per_image": 0.039},
         }
 
         if model not in pricing:
