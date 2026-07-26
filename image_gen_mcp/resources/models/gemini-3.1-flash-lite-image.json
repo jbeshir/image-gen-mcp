@@ -1,0 +1,14 @@
+{
+  "model_id": "gemini-3.1-flash-lite-image",
+  "name": "Gemini 3.1 Flash Lite Image (Nano Banana 2 Lite)",
+  "version": "3.1",
+  "capabilities": ["Native text-to-image generation", "Conversational image editing", "Low-latency 1K output"],
+  "pricing": {"1K image output": "$0.0336", "currency": "USD"},
+  "rate_limits": {"default": "Based on Gemini API quota", "max_images_per_request": 1},
+  "size_options": ["1024x1024", "1536x1024", "1024x1536"],
+  "quality_levels": ["auto"],
+  "formats": ["PNG"],
+  "features": {"recommended": "High-volume, cost-sensitive generation", "watermarking": "SynthID watermark included"},
+  "best_practices": ["Use for fast interactive workflows"],
+  "examples": ["generate_image(prompt='A friendly app onboarding illustration', model='gemini-3.1-flash-lite-image')"]
+}

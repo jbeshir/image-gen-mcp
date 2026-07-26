@@ -52,7 +52,10 @@ class GeminiSettings(BaseModel):
     timeout: float = Field(300.0, description="Request timeout in seconds")
     max_retries: int = Field(3, description="Maximum number of retries")
     enabled: bool = Field(False, description="Enable Gemini provider")
-    default_model: str = Field("imagen-4", description="Default Gemini model")
+    default_model: str = Field(
+        "gemini-3.1-flash-image",
+        description="Default Gemini model",
+    )
 
     @field_validator("base_url")
     @classmethod

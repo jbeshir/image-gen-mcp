@@ -1,8 +1,8 @@
-"""Smoke test for Gemini/Imagen image generation (1 API call).
+"""Smoke test for Gemini image generation (1 API call).
 
 Verifies the Gemini provider pipeline works end-to-end using
 the google-genai SDK.  Requires a valid Vertex AI service account
-and will incur a small cost (~$0.02 for imagen-4-fast).
+and will incur a small cost (~$0.03 for Gemini 3.1 Flash Lite Image).
 
 Run with: pytest tests/integration/test_gemini_generation.py -v -s --run-integration
 """
@@ -61,10 +61,10 @@ class TestGeminiImageGeneration:
             await cache_manager.close()
 
     async def test_generate_image_gemini(self, real_tool):
-        """Smoke test: generate one image with imagen-4-fast (~$0.02)."""
+        """Generate one image with Gemini 3.1 Flash Lite Image."""
         result = await real_tool.generate(
             prompt="A simple red circle on a white background",
-            model="imagen-4-fast",
+            model="gemini-3.1-flash-lite-image",
             quality=ImageQuality.AUTO,
             size=ImageSize.SQUARE,
         )

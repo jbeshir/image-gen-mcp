@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides a comprehensive technical overview of the Image Gen MCP Server, a Model Context Protocol (MCP) server that integrates OpenAI's gpt-image family (gpt-image-2, gpt-image-1.5, gpt-image-1), DALL-E, and Google's Imagen series for text-to-image generation and editing services.
+This document provides a comprehensive technical overview of the Image Gen MCP Server, a Model Context Protocol (MCP) server that integrates OpenAI's gpt-image family (gpt-image-2, gpt-image-1.5, gpt-image-1), DALL-E, and Google's native Gemini image models for text-to-image generation and editing services.
 
 ## Architecture
 
@@ -315,7 +315,7 @@ The system provides both immediate access and persistent storage:
     "type": "object",
     "properties": {
         "prompt": {"type": "string", "description": "Text description"},
-        "model": {"type": "string", "description": "Model to use (e.g., 'gpt-image-1', 'dall-e-3', 'imagen-4')", "optional": true},
+        "model": {"type": "string", "description": "Model to use (e.g., 'gpt-image-1', 'dall-e-3', 'gemini-3.1-flash-image')", "optional": true},
         "quality": {"type": "string", "enum": ["high", "medium", "low"], "default": "auto"},
         "size": {"type": "string", "enum": ["1536x1024", "1024x1536", "1024x1024"], "default": "1536x1024"},
         "style": {"type": "string", "enum": ["vivid", "natural"], "default": "vivid"},
@@ -717,7 +717,7 @@ PROVIDERS__GEMINI__BASE_URL=https://generativelanguage.googleapis.com/v1beta/
 PROVIDERS__GEMINI__TIMEOUT=300.0
 PROVIDERS__GEMINI__MAX_RETRIES=3
 PROVIDERS__GEMINI__ENABLED=false
-PROVIDERS__GEMINI__DEFAULT_MODEL=imagen-4
+PROVIDERS__GEMINI__DEFAULT_MODEL=gemini-3.1-flash-image
 
 # =============================================================================
 # Image Generation Settings
@@ -950,4 +950,3 @@ pm2 start server.py --name image-gen-mcp -- --transport streamable-http
    - Check firewall settings
    - Verify DNS resolution
    - Test API endpoint accessibility
-
