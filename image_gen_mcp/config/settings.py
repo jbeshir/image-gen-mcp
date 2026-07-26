@@ -287,7 +287,7 @@ class ServerSettings(BaseModel):
     """Server configuration."""
 
     name: str = Field("Image Gen MCP Server", description="Server name")
-    version: str = Field("0.1.0", description="Server version")
+    version: str = Field("0.2.0", description="Server version")
     port: int = Field(3001, gt=0, le=65535, description="Server port")
     host: str = Field("127.0.0.1", description="Server host")
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = Field(

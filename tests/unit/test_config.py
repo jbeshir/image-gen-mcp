@@ -24,7 +24,7 @@ class TestServerSettings:
         settings = ServerSettings()
 
         assert settings.name == "Image Gen MCP Server"
-        assert settings.version == "0.1.0"
+        assert settings.version == "0.2.0"
         assert settings.log_level == "INFO"
         assert settings.port == 3001
         assert settings.rate_limit_rpm == 50
